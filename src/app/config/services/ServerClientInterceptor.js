@@ -104,7 +104,7 @@ const stagingAPI = createAPIInstance('https://stg-admin-api.indifi.com');
 const addInterceptors = (apiInstance) => {
   apiInstance.interceptors.request.use(
     function (config) {
-      const token = '53b4081bc4d365ff5c723266e2b062fdb215bed5';
+      const token = 'bff18d94f3eddc55a8ad7b372211750b487e9353';
       config.headers.Authorization = `Bearer ${token}`;
       
       if (config.headers.tokenAuthorization) {
