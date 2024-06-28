@@ -48,7 +48,35 @@ export default function BulkAssign() {
   ];
 
   const filteredUsers = bulkAssignData.filter(user => user.group_id === selectedGroup);
-
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const formJson = Object.fromEntries(formData.entries());
+    const ApplicationBulkAssign = formJson.ApplicationBulkAssign.split(',').map(id => id.trim());
+    const GroupBulkAppAssign = formJson.GroupBulkAppAssign;
+    const UserBulkAppAssign = formJson.UserBulkAppAssign;
+  
+    const payload = {
+      requestIds: ApplicationBulkAssign,
+      groupId: GroupBulkAppAssign,
+      userId: UserBulkAppAssign
+    };
+  
+    try {
+      const response = await ApplicationAPIDataService.postBulkAssign(payload);
+      if (response.data.success) {
+        alert('Bulk assignment successful');
+      } else {
+        alert('Bulk assignment failed');
+      }
+    } catch (error) {
+      alert('An error occurred during bulk assignment');
+    }
+  
+    handleClose();
+  };
+  
+  
   return (
     <React.Fragment>
       <Button variant="outlined"
@@ -73,25 +101,15 @@ export default function BulkAssign() {
         Bulk Assign
       </Button>
       <Dialog
-        open={open}
-        onClose={handleClose}
-        PaperProps={{
-          component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            const ApplicationBulkAssign = formJson.ApplicationBulkAssign;
-            const GroupBulkAppAssign = formJson.GroupBulkAppAssign;
-            const UserBulkAppAssign = formJson.UserBulkAppAssign;
-            console.log('ApplicationBulkAssign:', ApplicationBulkAssign);
-            console.log('GroupBulkAppAssign:', GroupBulkAppAssign);
-            console.log('UserBulkAppAssign:', UserBulkAppAssign);
-            handleClose();
-          },
-          sx: { width: '600px' }
-        }}
-      >
+          open={open}
+          onClose={handleClose}
+          PaperProps={{
+            component: 'form',
+            onSubmit: handleFormSubmit,
+            sx: { width: '600px' },
+          }}
+        >       
+
         <DialogTitle>Bulk Assign</DialogTitle>
         <DialogContent>
           <DialogContentText></DialogContentText>

@@ -45,20 +45,78 @@ function CreateAnchor() {
   }
     fetchCreateAnchor();
   },[]);
-
+  React.useEffect(()=>{
+    const fetchRequestTypes=async()=>{
+    try{
+      const response=await ApplicationAPIDataService.getRequestTypes()
+      console.log(" RequestTypes data ",response.data.data);
+      if(response){
+        setRequestAnchor(response.data.data);
+      }
+      else{
+        throw new Error("Unexpected response format");
+      }
+    }
+    catch(err){
+        console.log("error fetching RequestTypes ");
+        setError(err);
+    }
+  }
+    fetchRequestTypes();
+  },[]);
   const industries=[
     ...new Set(createAnchorData.map((val)=>val.industry))
   ];
-  console.log("industry",industries);
+  // console.log("industry",industries);
   
   const selectedAnchor=createAnchorData
   .filter((anchor)=>(anchor.industry===selectedIndustry))
   .map((anchor)=>anchor.name);
+  // console.log(selectedAnchor)
 
-      
+  // const handleFormSubmit=(e)=>{
+  //     e.preventDefault();
+  //     const formData=
+  // }
+
+    const handleFormSubmit= async(event)=>{
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+      const formJson = Object.fromEntries(formData.entries());
+      const ApplicationCreateAnchor = formJson.ApplicationCreateAnchor;
+      const IndustryCreateAnchor = formJson.IndustryCreateAnchor;
+      const CopyAnchorCreateAnchor=formJson.CopyAnchorCreateAnchor;
+      const RequestCreateAnchor=formJson.RequestCreateAnchor;
+      console.log('ApplicationCreateAnchor:', ApplicationCreateAnchor);
+      // console.log('Anchor:', anchor);
+      console.log('IndustryCreateAnchor: ', IndustryCreateAnchor)
+      console.log('CopyAnchorCreateAnchor: ',CopyAnchorCreateAnchor)
+      console.log('RequestCreateAnchor: ',RequestCreateAnchor)
+
+      const payload={
+        // copyId: "cad487a0-9f7c-44d3-ac6a-e592112e32e9",
+        industry: IndustryCreateAnchor,
+        name: ApplicationCreateAnchor,
+        request_types: RequestCreateAnchor
+      }
+
+      try {
+        const response = await ApplicationAPIDataService.postCreateAnchor(payload);
+        console.log('Response:', response);  // Debug statement
+        if (response.data.success) {
+          alert('create anchor successful');
+        } else {
+          alert(`create anchor failed: ${response.data.message}`);
+        }
+      } catch (error) {
+        console.error('Error during create anchor:', error);  // Debug statement
+        alert('An error occurred during create anchor');
+      }
+    
+      handleClose();
+    }  
   
   
-  console.log(selectedAnchor)
     
     
     return ( 
@@ -89,21 +147,7 @@ function CreateAnchor() {
         onClose={handleClose}
         PaperProps={{
           component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            const ApplicationCreateAnchor = formJson.ApplicationCreateAnchor;
-            const IndustryCreateAnchor = formJson.IndustryCreateAnchor;
-            const CopyAnchorCreateAnchor=formJson.CopyAnchorCreateAnchor;
-            const RequestCreateAnchor=formJson.RequestCreateAnchor;
-            console.log('ApplicationCreateAnchor:', ApplicationCreateAnchor);
-            // console.log('Anchor:', anchor);
-            console.log('IndustryCreateAnchor: ', IndustryCreateAnchor)
-            console.log('CopyAnchorCreateAnchor: ',CopyAnchorCreateAnchor)
-            console.log('RequestCreateAnchor: ',RequestCreateAnchor)
-            handleClose();
-          },
+          onSubmit: handleFormSubmit,
           sx: { width: '600px' }
         }}
       >
@@ -140,9 +184,11 @@ function CreateAnchor() {
     <label htmlFor="SelectRequest">Select Request Anchors</label>
     <select id="" name="RequestCreateAnchor" required>
       <option value="">Select Request Anchor</option>
-      <option value="Request 1">Request 1</option>
-      <option value="Request 2">Request 2</option>
-      <option value="Request 3">Request 3</option>
+      {requestAnchor.map((anchor)=>(
+        <option key={anchor.id} value={anchor.name}>
+          {anchor.name}
+        </option>
+      ))}
     </select>
   
   </div>

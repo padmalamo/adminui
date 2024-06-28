@@ -9,6 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { ApplicationAPIDataService } from '../../../../config/application-api-data-service';
 
 function LmsSyncEscrowCases() {
     const [open,setOpen]=React.useState(false);
@@ -19,6 +20,40 @@ function LmsSyncEscrowCases() {
     function handleClose(){
         setOpen(false);
     }
+    const handleFormSubmit = async (event) => {
+      event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            const StartDate = formJson.StartDatelmsSync;
+            const EndDate = formJson.EndDatelmsSync;
+            
+            // console.log('StartDatelmsSync:', StartDatelmsSync);
+            // console.log('Anchor:', anchor);
+            // console.log('EndDatelmsSync: ', EndDatelmsSync)
+      const payload = {
+        start_date: StartDate,
+				end_date: EndDate
+      };
+  
+      // console.log('Payload:', payload);  // Debug statement
+    
+      try {
+        const response = await ApplicationAPIDataService.postEscrowLmsCases(payload);
+        console.log('Response:', response);  // Debug statement
+        if (response.data.success) {
+          alert('post Escrow Lms Cases successful');
+        } else {
+          alert(`post Escrow Lms Cases failed: ${response.data.message}`);
+        }
+      } catch (error) {
+        console.error('Error during postEscrowLmsCases:', error);  // Debug statement
+        alert('An error occurred during postEscrowLmsCases');
+      }
+    
+      handleClose();
+    };
+
+
     return ( <>
             <Button variant="outlined" 
       sx={{
@@ -46,19 +81,7 @@ function LmsSyncEscrowCases() {
         onClose={handleClose}
         PaperProps={{
           component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            const StartDatelmsSync = formJson.StartDatelmsSync;
-            const EndDatelmsSync = formJson.EndDatelmsSync;
-            
-            console.log('StartDatelmsSync:', StartDatelmsSync);
-            // console.log('Anchor:', anchor);
-            console.log('EndDatelmsSync: ', EndDatelmsSync)
-            
-            handleClose();
-          },
+          onSubmit: handleFormSubmit,
           sx: { width: '600px' }
         }}
       >

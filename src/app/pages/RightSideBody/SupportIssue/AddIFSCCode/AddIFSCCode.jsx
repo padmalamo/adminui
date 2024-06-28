@@ -4,35 +4,45 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+// import { postIfscCode } from 'path/to/your/postIfscCode';  // Adjust the import path accordingly
+import { ApplicationAPIDataService } from '../../../../config/application-api-data-service';
 
 function AddIFSCCode() {
     const [open, setOpen] = React.useState(false);
-    const [formData, setFormData] = React.useState({
-        bank_name: '',
-        ifsc_code: '',
-        micr_code: '',
-        bank_branch: '',
-        bank_address: '',
-        bank_contact: '',
-        bank_city: '',
-        bank_district: '',
-        bank_state: '',
-    });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const formJson = Object.fromEntries(formData.entries());
+        const payload = {
+            address: formJson.bank_address,
+            bank: formJson.bank_name,
+            branch: formJson.bank_branch,
+            city: formJson.bank_city,
+            contact: formJson.bank_contact,
+            district: formJson.bank_district,
+            ifsc: formJson.ifsc_code,
+            micr_code: formJson.micr_code,
+            state: formJson.bank_state,
+        };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Form Data Submitted:', formData);
-        // Implement your submit logic here
+        // console.log('Form Data Submitted:', payload);
+
+        try {
+            const response = await ApplicationAPIDataService.postIfscCode(payload);
+            if (response.data.success) {
+                console.log('IFSC code added successfully');
+                alert('IFSC Code added successfully!');
+            } else {
+                console.error('IFSC code addition failed:', response.data.message);
+                alert(`Failed to add IFSC Code: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error('An error occurred during addition of IFSC code:', error);
+            alert('An error occurred. Please try again.');
+        }
+
         handleClose();
     };
 
@@ -78,7 +88,7 @@ function AddIFSCCode() {
                     sx: { width: '80vw', maxHeight: '100vh', padding: '10px' }
                 }}
             >
-                <DialogTitle>ADD STAMP PAPER</DialogTitle>
+                <DialogTitle>ADD IFSC CODE</DialogTitle>
                 <DialogContent>
                     <div className="report-container" style={{ display: 'flex', flexDirection: 'column' }}>
                         <div style={{ marginTop: '10px', height: '1px' }}></div>
@@ -88,8 +98,6 @@ function AddIFSCCode() {
                                     label="BANK Name"
                                     name="bank_name"
                                     type="text"
-                                    value={formData.bank_name}
-                                    onChange={handleChange}
                                     required
                                     fullWidth
                                 />
@@ -99,8 +107,6 @@ function AddIFSCCode() {
                                     label="IFSC Code"
                                     name="ifsc_code"
                                     type="text"
-                                    value={formData.ifsc_code}
-                                    onChange={handleChange}
                                     required
                                     fullWidth
                                 />
@@ -112,8 +118,6 @@ function AddIFSCCode() {
                                     label="MICR Code"
                                     name="micr_code"
                                     type="text"
-                                    value={formData.micr_code}
-                                    onChange={handleChange}
                                     required
                                     fullWidth
                                 />
@@ -123,8 +127,6 @@ function AddIFSCCode() {
                                     label="Bank Branch"
                                     name="bank_branch"
                                     type="text"
-                                    value={formData.bank_branch}
-                                    onChange={handleChange}
                                     fullWidth
                                 />
                             </div>
@@ -135,8 +137,6 @@ function AddIFSCCode() {
                                     label="Bank Address"
                                     name="bank_address"
                                     type="text"
-                                    value={formData.bank_address}
-                                    onChange={handleChange}
                                     fullWidth
                                 />
                             </div>
@@ -145,8 +145,6 @@ function AddIFSCCode() {
                                     label="Bank Contact"
                                     name="bank_contact"
                                     type="text"
-                                    value={formData.bank_contact}
-                                    onChange={handleChange}
                                     fullWidth
                                 />
                             </div>
@@ -157,8 +155,6 @@ function AddIFSCCode() {
                                     label="Bank City"
                                     name="bank_city"
                                     type="text"
-                                    value={formData.bank_city}
-                                    onChange={handleChange}
                                     fullWidth
                                 />
                             </div>
@@ -167,8 +163,6 @@ function AddIFSCCode() {
                                     label="Bank District"
                                     name="bank_district"
                                     type="text"
-                                    value={formData.bank_district}
-                                    onChange={handleChange}
                                     fullWidth
                                 />
                             </div>
@@ -179,8 +173,6 @@ function AddIFSCCode() {
                                     label="Bank State"
                                     name="bank_state"
                                     type="text"
-                                    value={formData.bank_state}
-                                    onChange={handleChange}
                                     fullWidth
                                 />
                             </div>

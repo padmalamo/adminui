@@ -25,7 +25,7 @@ function SupportIssue() {
     const [supportIssueFilter, SetsupportIssueFilter]=useState([]);
     return ( <>
     <div className="RightMainBody">
-        <div layout="coloumn">
+        {/* <div layout="coloumn">
 
 
         <h1>Support Issue</h1>
@@ -36,8 +36,8 @@ function SupportIssue() {
             <option value="application"> Application </option>
             <option value="borrower"> Borrower </option>
         </select>
-        </div>
-        <br/>
+        </div>*/}
+        <br/> 
         <UploadMarchantData ></UploadMarchantData>
         <BulkRejection></BulkRejection>
         <SwapEscrowPayments></SwapEscrowPayments>

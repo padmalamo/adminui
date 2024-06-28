@@ -41,6 +41,15 @@ export default function UploadMarchantData() {
     fetchAnchors();
   }, []);
 
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const file = formData.get('file');
+    const anchor = formData.get('anchor');
+    
+    await ApplicationAPIDataService.postMarchantData({ file, anchor });
+    handleClose();
+  };
   return (
     <React.Fragment>
       <Button variant="outlined" 
@@ -69,16 +78,8 @@ export default function UploadMarchantData() {
         onClose={handleClose}
         PaperProps={{
           component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            const email = formJson.email;
-            const anchor = formJson.anchor;
-            console.log('Email:', email);
-            console.log('Anchor:', anchor);
-            handleClose();
-          },
+          onSubmit: handleFormSubmit,
+          
           sx: { width: '600px' }
         }}
       >
@@ -98,13 +99,6 @@ export default function UploadMarchantData() {
           &lt; anchor_vintage &gt;<br/>
           </DialogContentText>
           <label htmlFor="anchor">Anchors*</label><br/>
-          {/* <select id="anchor" name="anchor" required>
-            <option value="">Select Anchors</option>
-            <option value="anchor1">Anchor 1</option>
-            <option value="anchor2">Anchor 2</option>
-            <option value="anchor3">Anchor 3</option>
-            
-          </select> */}
           {anchors.length > 0 && (
               <select id="anchor" name="anchor" required>
                 <option value="">Select Anchor</option>
@@ -115,20 +109,16 @@ export default function UploadMarchantData() {
                 ))}
               </select>
             )}
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="name"
-            name="email"
-            label="Email Address"
-            type="email"
-            fullWidth
-            variant="standard"
-          />
+          <input
+    type="file"
+    id="file"
+    name="file"
+    accept=".csv"
+    required
+  />
         </DialogContent>
         <DialogActions>
-          <Button type="submit">Subscribe</Button>
+          <Button type="submit">UPLOAD DATA</Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>

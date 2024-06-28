@@ -7,6 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
+import { ApplicationAPIDataService } from '../../../../config/application-api-data-service';
 
 const HiddenInput = styled('input')({
     display: 'none',
@@ -28,14 +29,32 @@ function AchRegistration() {
         setAttachment(event.target.files[0]);
     };
 
-    const handleSubmit = (action) => {
+    const handleSubmit = async (action) => {
         if (action === 'download') {
             // Handle download action
             console.log('Download Attachment');
         } else if (action === 'upload') {
-            // Handle upload and send mail action
-            console.log('Upload Attachment and Send Mail');
-            console.log('File:', attachment);
+            if (!attachment) {
+                alert('Please upload an attachment first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('attachment', attachment);
+
+            try {
+                const response = await ApplicationAPIDataService.postAchRegistration(formData);
+                if (response.data.success) {
+                    console.log('Attachment uploaded and email sent successfully');
+                    alert('Attachment uploaded and email sent successfully!');
+                } else {
+                    console.error('Failed to upload attachment and send email:', response.data.message);
+                    alert(`Failed to upload attachment and send email: ${response.data.message}`);
+                }
+            } catch (error) {
+                console.error('An error occurred during the upload and send mail process:', error);
+                alert('An error occurred. Please try again.');
+            }
         }
         handleClose();
     };

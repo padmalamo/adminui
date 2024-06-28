@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -5,27 +6,38 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import { ApplicationAPIDataService } from '../../../../config/application-api-data-service';
 
 function DeleteEnach() {
     const [open, setOpen] = React.useState(false);
-    const [formData, setFormData] = React.useState({
-        request_id_emandate: '',
-        request_id_physical_emandate: '',
-        enach_deletion_reason: '',
-    });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const formJson = Object.fromEntries(formData.entries());
+        const payload = {
+            request_id_emandate: formJson.request_id_emandate,
+            request_id_physical_emandate: formJson.request_id_physical_emandate,
+            enach_deletion_reason: formJson.enach_deletion_reason,
+            
+        };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Form Data Submitted:', formData);
-        // Implement your submit logic here
+        // console.log('Form Data Submitted:', payload);
+
+        try {
+            const response = await ApplicationAPIDataService.postDeleteEnach(payload);
+            if (response.data.success) {
+                console.log('ENACH deleted successfully');
+                alert('ENACH deleted successfully!');
+            } else {
+                console.error('ENACH deletion failed:', response.data.message);
+                alert(`Failed to delete ENACH: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error('An error occurred during ENACH deletion:', error);
+            alert('An error occurred. Please try again.');
+        }
+
         handleClose();
     };
 
@@ -80,8 +92,6 @@ function DeleteEnach() {
                                 label="Request ID(s) for Emandate"
                                 name="request_id_emandate"
                                 type="text"
-                                value={formData.request_id_emandate}
-                                onChange={handleChange}
                                 required
                                 fullWidth
                             />
@@ -91,8 +101,6 @@ function DeleteEnach() {
                                 label="Request ID(s) for Physical Emandate"
                                 name="request_id_physical_emandate"
                                 type="text"
-                                value={formData.request_id_physical_emandate}
-                                onChange={handleChange}
                                 required
                                 fullWidth
                             />
@@ -102,8 +110,6 @@ function DeleteEnach() {
                                 label="Reason for deletion"
                                 name="enach_deletion_reason"
                                 type="text"
-                                value={formData.enach_deletion_reason}
-                                onChange={handleChange}
                                 required
                                 fullWidth
                             />

@@ -9,6 +9,25 @@ const getAnchors = (id) => {
   return READ(stagingAPI, `/anchors`, {}, authorizationHeader);
 };
 
+const postMarchantData = (formData) => {
+  const payload = new FormData();
+  payload.append('file', formData.file);
+  payload.append('anchor_name', formData.anchor);
+
+  return CREATE(stagingAPI, '/support/merchant-data-upload', payload, authorizationHeader)
+    .then(response => {
+      if (response.data.success) {
+        console.log('Merchant data upload successful');
+      } else {
+        console.error('Merchant data upload failed');
+      }
+    })
+    .catch(error => {
+      console.error('An error occurred during merchant data upload:', error);
+      throw error;
+    });
+};
+
 //BULK REJECTION
 // from dadAPI
 const getRejectionReasons = () => {
@@ -31,6 +50,39 @@ const postBulkRejection = (payload) => {
       throw error;
     });
 };
+//SWAP ESCROW PAYMENT
+const postSwapEscrow=(payload)=>{
+  return CREATE(stagingAPI,'/applications/swap-escrow-payments',payload, authorizationHeader)
+  .then(response => {
+    if (response.data.success) {
+      console.log("swap escrow payment successful");
+    } else {
+      console.error("swap escrow payment failed");
+    }
+    return response;
+  })
+  .catch(error => {
+    console.error("An error occurred during swap escrow payment:", error);
+    throw error;
+  });
+}
+
+//BULK DUPLICATION AND REJECTION( 2 post methods api are hitting one is bulk rejection already defined above)
+const postBulkDuplication=(payload)=>{
+  return CREATE(stagingAPI,'jobs/applications/bulkCopy', payload, authorizationHeader)
+  .then(response=>{
+    if (response.data.success) {
+      console.log("Bulk Duplication successful");
+    } else {
+      console.error("Bulk Duplication failed");
+    }
+    return response;
+  })
+  .catch(error => {
+    console.error("An error occurred during Bulk Duplication:", error);
+    throw error;
+  });
+}
 
 //BULK ASSIGN
 // from stagingAPI
@@ -70,7 +122,7 @@ const postBulkAssign=(payload)=>{
 }
 //BULK LOAN CLOSURE
 const postBulkLoanClosure = (payload) => {
-  return CREATE(ApplicationAPIDataService, '/applications/bulk-loan-close', payload, authorizationHeader)
+  return CREATE(stagingAPI, '/applications/bulk-loan-close', payload, authorizationHeader)
     .then(response => {
       if (response.data.success) {
         console.log("Bulk loan closure successful");
@@ -89,6 +141,147 @@ const postBulkLoanClosure = (payload) => {
 const getCreateAnchorData = () => {
   return READ(stagingAPI, '/anchors?count=1000&fields=id,name,industry&offset=0', {}, authorizationHeader);
 };
+const getRequestTypes = () => {
+  return READ(stagingAPI, '/request_types?fields=id,name', {}, authorizationHeader);
+};
+
+const postCreateAnchor=(payload)=>{
+  return CREATE(stagingAPI,'support/anchor/create',payload, authorizationHeader)
+  .then(response => {
+    if (response.data.success) {
+      console.log("create anchor successful");
+    } else {
+      console.error("create anchor failed:", response.data.message);
+    }
+    return response;
+  })
+  .catch(error => {
+    console.error("An error occurred during creating anchor:", error);
+    throw error;
+  });
+}
+//lms sync escrow cases
+const postEscrowLmsCases=(payload)=>{
+  return CREATE(stagingAPI,'support/escrow-lms-report',payload,authorizationHeader)
+  .then(response=>{
+    if(response.data.success){
+      console.log("lms sync escrow cases successful")
+    }else{
+      console.error("lms sync escrow cases failed:", response.data.message);
+    }
+    return response;
+  })
+  .catch(error=>{
+    console.log("An error occured during lms sync escrow cases:", error);
+    throw error;
+  })
+}
+//add ifsc code
+const postIfscCode=(payload)=>{
+  return CREATE(stagingAPI,'/ifsc_code', payload, authorizationHeader)
+  .then(response=>{
+    if(response.data.success){
+      console.log("ifsc code added successfully")
+    }else{
+      console.error("ifsc code addition failed:", response.data.message)
+    }
+  })
+  .catch(error=>{
+    console.log("An error occured during addition of ifsc code:", error);
+    throw error;
+  })
+}
+// delete enach
+const postDeleteEnach=(payload)=>{
+  return CREATE(dadAPI,'/deleteEnach', payload, authorizationHeader)
+  .then(response=>{
+    if(response.data.success){
+      console.log("delete enach successfully")
+    }else{
+      console.error("delete enach failed:", response.data.message)
+    }
+  })
+  .catch(error=>{
+    console.log("An error occured during addition of delete enach:", error);
+    throw error;
+  })
+}
+// ach registration
+const postAchRegistration=(payload)=>{
+  return CREATE(stagingAPI,'/support/ach-data', payload, authorizationHeader)
+  .then(response=>{
+    if(response.data.success){
+      console.log("ach registration successfully")
+    }else{
+      console.error("ach registration failed:", response.data.message)
+    }
+  })
+  .catch(error=>{
+    console.log("An error occured during addition of ach registration:", error);
+    throw error;
+  })
+}
+// credit flag bulk upload
+const postCreditFlagBulkUpload=(payload)=>{
+  return CREATE(stagingAPI,'', payload, authorizationHeader)
+  .then(response=>{
+    if(response.data.success){
+      console.log("credit flag bulk upload successfully")
+    }else{
+      console.error("credit flag bulk upload failed:", response.data.message)
+    }
+  })
+  .catch(error=>{
+    console.log("An error occured during addition of credit flag bulk upload:", error);
+    throw error;
+  })
+}
+// clear cache
+const postClearCache=(payload)=>{
+  return CREATE(stagingAPI,'', payload, authorizationHeader)
+  .then(response=>{
+    if(response.data.success){
+      console.log("clear cache successfully")
+    }else{
+      console.error("clear cache failed:", response.data.message)
+    }
+  })
+  .catch(error=>{
+    console.log("An error occured during addition of clear cache:", error);
+    throw error;
+  })
+}
+
+// loan tagging data
+const postLoanTaggingData=(payload)=>{
+  return CREATE(stagingAPI,'', payload, authorizationHeader)
+  .then(response=>{
+    if(response.data.success){
+      console.log("loan tagging data successfully")
+    }else{
+      console.error("loan tagging data failed:", response.data.message)
+    }
+  })
+  .catch(error=>{
+    console.log("An error occured during addition of loan tagging data:", error);
+    throw error;
+  })
+}
+// pin code data
+const postPinCodeData=(payload)=>{
+  return CREATE(stagingAPI,'', payload, authorizationHeader)
+  .then(response=>{
+    if(response.data.success){
+      console.log("pin code data successfully")
+    }else{
+      console.error("pin code data failed:", response.data.message)
+    }
+  })
+  .catch(error=>{
+    console.log("An error occured during addition of pin code data:", error);
+    throw error;
+  })
+}
 
 // Uncomment and modify the following functions as needed:
 // const getApplicationLenderHistory = (id) => {
@@ -135,7 +328,20 @@ export const ApplicationAPIDataService = {
   getCreateAnchorData,
   postBulkRejection,
   postBulkAssign,
-  postBulkLoanClosure
+  postBulkLoanClosure,
+  postMarchantData,
+  postSwapEscrow,
+  postBulkDuplication,
+  getRequestTypes,
+  postCreateAnchor,
+  postEscrowLmsCases,
+  postIfscCode,
+  postDeleteEnach,
+  postAchRegistration,
+  postCreditFlagBulkUpload,
+  postClearCache,
+  postPinCodeData,
+  postLoanTaggingData
   // getApplicationLoanRequest,
   // getApplicationSwiggyOffers,
   // getApplicationDocumentsChecklist,

@@ -8,6 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { ApplicationAPIDataService } from '../../../../config/application-api-data-service';
 
 export default function BulkLoanClosure() {
   const [open, setOpen] = React.useState(false);
@@ -20,6 +21,36 @@ export default function BulkLoanClosure() {
     setOpen(false);
   };
 
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const formJson = Object.fromEntries(formData.entries());
+    const applicationBulkLoanClosure = formJson.ApplicationsBulkLoanClosure.split(',').map(id => id.trim());
+    const forceCloseBulkLoanClosure = formJson.ForceCloseBulkLoanClosure === 'on';
+  
+    const payload = {
+      requestIds: applicationBulkLoanClosure,
+      force_close: forceCloseBulkLoanClosure
+    };
+
+    // console.log('Payload:', payload);  // Debug statement
+  
+    try {
+      const response = await ApplicationAPIDataService.postBulkLoanClosure(payload);
+      console.log('Response:', response);  // Debug statement
+      if (response.data.success) {
+        alert('Bulk loan closure successful');
+      } else {
+        alert(`Bulk loan closure failed: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error('Error during bulk loan closure:', error);  // Debug statement
+      alert('An error occurred during bulk loan closure');
+    }
+  
+    handleClose();
+  };
+  
   return (
     <React.Fragment>
       <Button variant="outlined" 
@@ -48,21 +79,11 @@ export default function BulkLoanClosure() {
         onClose={handleClose}
         PaperProps={{
           component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            const applicationBulkLoanClosure = formJson.ApplicationsBulkLoanClosure;
-            const ForceCloseBulkLoanClosure = formJson.ForceCloseBulkLoanClosure === 'on';
-            
-            console.log('ApplicationBulkLoanClosure:', applicationBulkLoanClosure);
-            console.log('ForceCloseBulkLoanClosure:', ForceCloseBulkLoanClosure);
-            
-            handleClose();
-          },
-          sx: { width: '600px' }
+          onSubmit: handleFormSubmit,
+          sx: { width: '600px' },
         }}
       >
+
         <DialogTitle>Bulk Loan Closure</DialogTitle>
         <DialogContent>
           <DialogContentText></DialogContentText>

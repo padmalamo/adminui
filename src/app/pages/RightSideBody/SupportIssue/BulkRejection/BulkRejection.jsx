@@ -38,7 +38,34 @@ export default function BulkRejection() {
   const handleClose = () => {
     setOpen(false);
   };
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const formJson = Object.fromEntries(formData.entries());
+    const ApplicationBulkRejection = formJson.ApplicationBulkRejection.split(',').map(id => id.trim());
+    const commentsBulkRjection = formJson.CommentsBulkRjection;
+    const rejectionReason = formJson.RejectionReason;
+  
+    const payload = {
+      requestIds: ApplicationBulkRejection,
+      reason: rejectionReason,
+      note: commentsBulkRjection
+    };
+  
 
+    try {
+      const response = await ApplicationAPIDataService.postBulkRejection(payload);
+      if (response.data.success) {
+        alert('Bulk rejection successful');
+      } else {
+        alert('Bulk rejection failed');
+      }
+    } catch (error) {
+      alert('An error occurred during bulk rejection');
+    }
+  
+    handleClose();
+  };
   return (
     <React.Fragment>
       <Button
@@ -69,28 +96,16 @@ export default function BulkRejection() {
         onClose={handleClose}
         PaperProps={{
           component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            const ApplicationBulkRejection = formJson.ApplicationBulkRejection;
-            const commentsBulkRjection = formJson.CommentsBulkRjection;
-            const rejectionReason = formJson.RejectionReason;
-            console.log('ApplicationBulkRejection:', ApplicationBulkRejection);
-            console.log('CommentsBulkRjection:', commentsBulkRjection);
-            console.log('RejectionReason:', rejectionReason);
-            handleClose();
-          },
+          onSubmit: handleFormSubmit,
           sx: { width: '600px' },
         }}
-      >
+      >     
         <DialogTitle>Change Rejection Reason</DialogTitle>
         <DialogContent>
           <DialogContentText></DialogContentText>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <label htmlFor="applications">Enter Applications</label>
             <TextField id="applications" name="ApplicationBulkRejection" placeholder="Enter Applications..." />
-
             <label htmlFor="RejectionReason">Rejection Reason*</label>
             {rejectionReasons.length > 0 && (
               <select id="RejectionReason" name="RejectionReason" required>
@@ -102,7 +117,6 @@ export default function BulkRejection() {
                 ))}
               </select>
             )}
-
             <label htmlFor="comments">Additional Comments</label>
             <TextField id="comments" name="CommentsBulkRjection" placeholder="Add your Comments" />
           </div>

@@ -18,6 +18,31 @@ export default function SwapEscrowPayments() {
   const handleClose = () => {
     setOpen(false);
   };
+  const handleFormSubmit= async (event)=>{
+    event.preventDefault();
+    const formData= new FormData(event.currentTarget)
+    const formJson=Object.fromEntries(formData.entries());
+
+    const applicationfromSwapEscrowPayments=formJson.ApplicationfromSwapEscrowPayments
+    const applicationtoSwapEscrowPayments=formJson.ApplicationtoSwapEscrowPayments;
+    
+    const payload={
+      from_request_id: applicationfromSwapEscrowPayments,
+      to_request_id: applicationtoSwapEscrowPayments
+    };
+    try {
+      const response = await ApplicationAPIDataService.postSwapEscrow(payload);
+      if (response.data.success) {
+        alert('swap escrow successful');
+      } else {
+        alert('swap escrow failed');
+      }
+    } catch (error) {
+      alert('An error occurred during swap escrow');
+    }
+  
+    handleClose();
+  }
 
   return (
     <React.Fragment>
@@ -47,17 +72,7 @@ export default function SwapEscrowPayments() {
         onClose={handleClose}
         PaperProps={{
           component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            const ApplicationfromSwapEscrowPayments = formJson.ApplicationfromSwapEscrowPayments;
-            const ApplicationtoSwapEscrowPayments = formJson.ApplicationtoSwapEscrowPayments;
-            console.log('ApplicationfromSwapEscrowPayments:', ApplicationfromSwapEscrowPayments);
-            console.log('ApplicationtoSwapEscrowPayments: ', ApplicationtoSwapEscrowPayments)
-            // console.log('RejectionReason: ',rejectionReason)
-            handleClose();
-          },
+          onSubmit: handleFormSubmit,
           sx: { width: '600px' }
         }}
       >
@@ -66,9 +81,9 @@ export default function SwapEscrowPayments() {
   <DialogContentText></DialogContentText>
   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
   
-    <label htmlFor="FromApplication">From Application</label>
+    <label htmlFor="fromApplications">From Application</label>
     <TextField id="fromapplications" name="ApplicationfromSwapEscrowPayments" placeholder='From Applications...'></TextField>
-    <label htmlFor="ToApplication">To Application</label>
+    <label htmlFor="toApplications">To Application</label>
     <TextField id="toapplications" name="ApplicationtoSwapEscrowPayments" placeholder='To Applications...'></TextField>
   
     
