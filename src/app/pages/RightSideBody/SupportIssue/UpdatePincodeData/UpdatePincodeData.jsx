@@ -1,18 +1,42 @@
-import React, { useState } from 'react';
+import * as React from 'react';
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
+import { ApplicationAPIDataService } from '../../../../config/application-api-data-service';
 
 function UpdatePincodeData() {
-    const [open, setOpen] = useState(false);
-    const [formData, setFormData] = useState({
+    const [open, setOpen] = React.useState(false);
+    const [action, setAction] = React.useState('');
+    const [formData, setFormData] = React.useState({
         pincode: '',
         state: '',
-        city: ''
+        city: '',
+        tier: 4,
+        lender_mapping: '',
     });
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await ApplicationAPIDataService.postUpdatePincode(formData);
+            if (response.data.success) {
+                console.log('Pincode updated successfully');
+                alert('Pincode updated successfully!');
+            } else {
+                console.error('Pincode update failed:', response.data.message);
+                alert(`Failed to update pincode: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error('An error occurred during pincode update:', error);
+            alert('An error occurred. Please try again.');
+        }
+        handleClose();
+    };
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -22,23 +46,14 @@ function UpdatePincodeData() {
         setOpen(false);
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        // Implement your submit logic here
-        console.log('Form data:', formData);
-        handleClose();
+    const handleChange = (event) => {
+        setFormData({ ...formData, [event.target.name]: event.target.value });
     };
 
     return (
         <>
             <Button
                 variant="outlined"
-                onClick={handleClickOpen}
                 sx={{
                     backgroundColor: 'rgb(62, 62, 190)',
                     color: 'white',
@@ -55,50 +70,102 @@ function UpdatePincodeData() {
                         backgroundColor: 'rgb(42, 42, 170)',
                     }
                 }}
+                onClick={handleClickOpen}
             >
                 Update Pincode Data
             </Button>
-            <Dialog open={open} onClose={handleClose}>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: handleSubmit,
+                    sx: { width: '80vw', maxHeight: '100vh', padding: '10px' }
+                }}
+            >
                 <DialogTitle>Update Pincode Data</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        fullWidth
-                        margin="normal"
-                        label="Pincode"
-                        name="pincode"
-                        value={formData.pincode}
-                        onChange={handleChange}
-                        type="number"
-                        required
-                        inputProps={{ minLength: 6, maxLength: 6 }}
-                        helperText={(formData.pincode.length < 6 || formData.pincode.length > 6) && "Pincode number should have 6 digits"}
-                    />
-                    <TextField
-                        fullWidth
-                        margin="normal"
-                        label="State"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        pattern="^[a-zA-Z\s]*$"
-                        required
-                    />
-                    <TextField
-                        fullWidth
-                        margin="normal"
-                        label="City"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        pattern="^[a-zA-Z\s.]*$"
-                        required
-                    />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Select
+                            value={action}
+                            onChange={(e) => setAction(e.target.value)}
+                            displayEmpty
+                            required
+                            fullWidth
+                            name="action"
+                        >
+                            <MenuItem value="" disabled>Select Action</MenuItem>
+                            <MenuItem value="add">Add New Pincode</MenuItem>
+                            <MenuItem value="update">Update Existing Pincode</MenuItem>
+                        </Select>
+                        <TextField
+                            label="Pincode"
+                            name="pincode"
+                            type="number"
+                            value={formData.pincode}
+                            onChange={handleChange}
+                            inputProps={{ minLength: 6, maxLength: 6 }}
+                            required
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="State"
+                            name="state"
+                            value={formData.state}
+                            onChange={handleChange}
+                            inputProps={{ pattern: "^[a-zA-Z\\s]*$" }}
+                            required
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="City / District"
+                            name="city"
+                            value={formData.city}
+                            onChange={handleChange}
+                            inputProps={{ pattern: "^[a-zA-Z0-9\\s.]*$" }}
+                            required
+                            fullWidth
+                            margin="normal"
+                        />
+                        {action === 'add' && (
+                            <>
+                                <label htmlFor="pincodeTier">Tier*</label>
+                                <Select
+                                    // label="Tier"
+                                    value={formData.tier}
+                                    id="pincodeTier"
+                                    onChange={handleChange}
+                                    name="tier"
+                                    required
+                                    fullWidth
+                                    margin="normal"
+                                >
+                                    <MenuItem value={1}>1</MenuItem>
+                                    <MenuItem value={2}>2</MenuItem>
+                                    <MenuItem value={3}>3</MenuItem>
+                                    <MenuItem value={4}>4</MenuItem>
+                                </Select>
+                                <TextField
+                                    label="Lender Mapping"
+                                    name="lender_mapping"
+                                    type="text"
+                                    value={formData.lender_mapping}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    margin="normal"
+                                    helperText="Note: Value must be in the given format: {'Lender Name': boolean, 'Lender Name': boolean}"
+                                />
+                            </>
+                        )}
+                    </div>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">
                         Close
                     </Button>
-                    <Button onClick={handleSubmit} color="primary">
+                    <Button type="submit" color="primary">
                         Submit
                     </Button>
                 </DialogActions>

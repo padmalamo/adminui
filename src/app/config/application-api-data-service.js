@@ -237,20 +237,21 @@ const postCreditFlagBulkUpload=(payload)=>{
   })
 }
 // clear cache
-const postClearCache=(payload)=>{
-  return CREATE(stagingAPI,'', payload, authorizationHeader)
-  .then(response=>{
-    if(response.data.success){
-      console.log("clear cache successfully")
-    }else{
-      console.error("clear cache failed:", response.data.message)
-    }
-  })
-  .catch(error=>{
-    console.log("An error occured during addition of clear cache:", error);
-    throw error;
-  })
-}
+const getClearCache = (cacheType = 'cibil') => {
+  return READ(dadAPI, `/cipher/clear_cache/${cacheType}`, {}, authorizationHeader)
+    .then(response => {
+      if (response.data.success) {
+        console.log('Cache cleared successfully');
+      } else {
+        console.error('Failed to clear cache:', response.data.message);
+      }
+      return response;
+    })
+    .catch(error => {
+      console.error('An error occurred while clearing cache:', error);
+      throw error;
+    });
+};
 
 // loan tagging data
 const postLoanTaggingData=(payload)=>{
@@ -269,7 +270,7 @@ const postLoanTaggingData=(payload)=>{
 }
 // pin code data
 const postPinCodeData=(payload)=>{
-  return CREATE(stagingAPI,'', payload, authorizationHeader)
+  return CREATE(stagingAPI,'/insert_pincode_details', payload, authorizationHeader)
   .then(response=>{
     if(response.data.success){
       console.log("pin code data successfully")
@@ -339,7 +340,7 @@ export const ApplicationAPIDataService = {
   postDeleteEnach,
   postAchRegistration,
   postCreditFlagBulkUpload,
-  postClearCache,
+  getClearCache,
   postPinCodeData,
   postLoanTaggingData
   // getApplicationLoanRequest,

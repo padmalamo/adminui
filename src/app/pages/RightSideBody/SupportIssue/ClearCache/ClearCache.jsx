@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// import { ApplicationAPIDataService } from './services/ApplicationAPIDataService';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -6,8 +7,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
+// import { Toast } from './services/Toast'; // Import the Toast utility
+import 'react-toastify/dist/ReactToastify.css'; // Import toastify CSS
+import { Toast } from '../../../../config/services/toast.service';
+import { ApplicationAPIDataService } from '../../../../config/application-api-data-service';
 
-function ClearCache() {
+const ClearCache = () => {
     const [open, setOpen] = useState(false);
     const [cacheType, setCacheType] = useState('');
 
@@ -19,10 +24,14 @@ function ClearCache() {
         setOpen(false);
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        // Implement your submit logic here
-        console.log('Cache type:', cacheType);
+        try {
+            await ApplicationAPIDataService.getClearCache(cacheType);
+            Toast.success('Cache cleared successfully');
+        } catch (error) {
+            Toast.error('Error clearing cache: ' + error.message);
+        }
         handleClose();
     };
 
@@ -87,6 +96,6 @@ function ClearCache() {
             </Dialog>
         </>
     );
-}
+};
 
 export default ClearCache;

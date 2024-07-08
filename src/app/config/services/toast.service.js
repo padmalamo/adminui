@@ -1,6 +1,5 @@
 import { toast } from "react-toastify";
 
-
 export const Toast = {
   success: (message) => {
     toast.success(message);
